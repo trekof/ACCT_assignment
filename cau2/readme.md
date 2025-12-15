@@ -1,5 +1,3 @@
-# Vigenère Cipher Attack - Proof of Concept
-
 ## Overview
 
 This proof of concept demonstrates a practical attack on the **Vigenère cipher** (repeating-key XOR encryption) by exploiting several key weaknesses:

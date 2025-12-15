@@ -1,4 +1,4 @@
-Overview
+# Overview
 This problem demonstrates how to use lattice reduction algorithms (specifically the LLL algorithm) to solve two important problems:
 
 Part B: Finding the minimal polynomial of an algebraic number given its numerical approximation
