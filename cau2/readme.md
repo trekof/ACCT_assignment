@@ -89,3 +89,157 @@ Short, repeating key
 Information leakage via 00 bytes (plaintext equals key)
 Predictable, common plaintext at sentence beginnings (“The ”)
 Recovered key: BlueTeam
+
+## Directory Structure
+
+```
+.
+│  ciphertexts2.txt
+│  main.py
+│  readme.md
+│  test1_1.py
+│  test1_2.py
+│  test2_1.py
+│  test2_2.py
+│  test2_3.py
+│  test2_4.py
+│  test2_5.py
+└── __pycache__/
+```
+
+---
+
+## File Descriptions and Analysis Flow
+
+### `ciphertexts2.txt`
+
+Contains the raw ciphertext lines in hexadecimal form. Each line represents one message encrypted using the same repeating XOR key.
+
+---
+
+### Phase 1: Reconnaissance and Pattern Discovery
+
+#### `test1_1.py`
+
+Purpose:
+
+* Loads the ciphertext file.
+* Splits the content into individual lines.
+* Prints basic statistics such as the total number of lines and a preview of the first few entries.
+
+This script is used to gain an initial overview of the dataset.
+
+---
+
+#### `test1_2.py`
+
+Purpose:
+
+* Analyzes the ciphertext lines to detect repeated prefixes.
+* Counts how many lines start with the same first 4 bytes (8 hex characters).
+* Identifies lines that start with `00000000`.
+
+Findings:
+
+* Many lines share the prefix `16041045`, suggesting a repeated plaintext prefix.
+* Several lines begin with null bytes, a known weakness in XOR encryption.
+
+---
+
+### Phase 2: Known-Plaintext and Key Recovery
+
+#### `test2_1.py`
+
+Purpose:
+
+* Tests the hypothesis that the repeated prefix `16041045` corresponds to the plaintext `"The "`.
+* Performs XOR between the guessed plaintext and ciphertext to recover the first key fragment.
+
+Result:
+
+* Successfully recovers the key fragment: `Blue`.
+
+---
+
+#### `test2_2.py`
+
+Purpose:
+
+* Extends the key by testing plausible continuations after `Blue`.
+* Tries common words such as `Team`, `Flag`, etc.
+* Checks whether the XOR results maintain a consistent repeating-key pattern.
+
+Result:
+
+* `Team` correctly continues the key, forming `BlueTeam`.
+
+---
+
+#### `test2_3.py`
+
+Purpose:
+
+* Verifies the full candidate key `BlueTeam`.
+* Uses it to decrypt the first ciphertext line.
+
+Result:
+
+* The decrypted output is readable English, strongly confirming the correctness of the key.
+
+---
+
+### Phase 3: Exploiting Null Bytes
+
+#### `test2_4.py`
+
+Purpose:
+
+* Analyzes a line that starts with `00000000`.
+* Counts how many leading null bytes appear.
+* Explains the implication: when the ciphertext byte is `0x00`, the plaintext byte equals the key byte.
+
+This script provides additional theoretical confirmation of the recovered key.
+
+---
+
+#### `test2_5.py`
+
+Purpose:
+
+* Uses the recovered key `BlueTeam` to decrypt a line containing null bytes.
+* Displays both the decrypted text and a byte-by-byte XOR breakdown.
+
+Result:
+
+* The output is meaningful English text, further validating the attack.
+
+---
+
+### Phase 4: Full Decryption
+
+#### `main.py`
+
+Purpose:
+
+* Contains the full ciphertext dataset inline.
+* Implements a reusable XOR decryption function.
+* Iterates through all ciphertext lines and prints the fully decrypted plaintext.
+
+Result:
+
+* Successfully recovers the complete plaintext, which discusses cybersecurity concepts such as Blue Team and Red Team roles.
+
+---
+
+## Conclusion
+
+* Cipher type: Repeating-key XOR (Vigenère-style)
+* Recovered key: `BlueTeam`
+* Main weaknesses exploited:
+
+  * Short, repeating key
+  * Repeated plaintext prefixes
+  * Presence of null bytes (`0x00`) in ciphertext
+  * Predictable English sentence openings
+
+This project illustrates how basic statistical analysis and known-plaintext attacks can fully break improperly used XOR encryption.
